@@ -40,8 +40,11 @@ namespace PushPush.Manager
             }
 
             GameClear = true;
+
+#if UNITY_EDITOR
             Debug.Log("Clear!");
             UnityEditor.EditorApplication.isPlaying = false;
+#endif
         }
     }
 }
