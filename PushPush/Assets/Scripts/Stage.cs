@@ -9,7 +9,7 @@ public class Stage : MonoBehaviour {
     public GameObject Home;
     public GameObject Ball;
 
-    public Transform PlyerPosition;
+    public Transform PlayerPosition;
 
     [HideInInspector]
     public List<Transform> Walls;

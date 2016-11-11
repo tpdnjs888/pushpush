@@ -28,33 +28,29 @@ namespace PushPush.Manager
         }
         #endregion
 
-        public Dictionary<int, Stage> Stages = new Dictionary<int, Stage>();
+        public List<Stage> Stages;
         public bool GameClear = false;
         public bool GameStart = false;
         public int CurrentStageNumber = -1;
 
         public Stage CurrentStage = null;
-
+        public Player Player = null;
+        public int Step = 0;
+        public bool AllStageClear = false;
 
         private GameObject field = null;
 
         public void UpdateSituation()
         {
-            /*if (Stage == null)
-                Stage = GameObject.FindObjectOfType<Stage>();
+            Step++;
 
-            foreach (var home in Stage.Homes)
+            foreach (var home in CurrentStage.Homes)
             {
                 if (home.haveBall == false)
                     return;
-            }*/
+            }
 
-            GameClear = true;
-
-#if UNITY_EDITOR
-            Debug.Log("Clear!");
-            UnityEditor.EditorApplication.isPlaying = false;
-#endif
+            StageClear();
         }
 
         public bool Touch()
@@ -69,10 +65,7 @@ namespace PushPush.Manager
         public void StartGame()
         {
             CurrentStageNumber = PlayerPrefs.GetInt("CurrentStage", 0);
-            var stageTemp = Resources.LoadAll<Stage>("Prefabs/Stage/").ToList();
-
-            for(int i = 0; i < stageTemp.Count; ++i)
-                Stages.Add(i + 1, stageTemp[i]);
+            Stages = Resources.LoadAll<Stage>("Prefabs/Stage/").ToList();
 
             field = GameObject.Find("Field");
 
@@ -89,13 +82,39 @@ namespace PushPush.Manager
 
             if (CurrentStage != null)
             {
-                Destroy(CurrentStage);
+                Destroy(CurrentStage.gameObject);
                 CurrentStage = null;
             }
 
+            if (Player != null)
+            {
+                Destroy(Player.gameObject);
+                Player = null;
+            }
+
+            var playerTemp = Resources.Load<Player>("Prefabs/Player");
+            Player = Instantiate<Player>(playerTemp);
+
+            Step = 0;
+            AllStageClear = false;
+
             CurrentStage = Instantiate<Stage>(Stages[CurrentStageNumber]);
             CurrentStage.transform.SetParent(field.transform);
-            CurrentStage.transform.position = Vector3.zero;
+            CurrentStage.transform.localPosition = Vector3.zero;
+
+            Player.transform.position = CurrentStage.PlayerPosition.position;
+        }
+
+        public void StageClear()
+        {
+            if (AllStageClear)
+                return;
+
+            if (CurrentStageNumber == Stages.Count - 1)
+                AllStageClear = true;
+
+            ++CurrentStageNumber;
+            LoadStage();
         }
 
         public void EndGame()
