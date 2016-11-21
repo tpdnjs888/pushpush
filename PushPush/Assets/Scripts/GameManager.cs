@@ -30,13 +30,33 @@ namespace PushPush.Manager
 
         public List<Stage> Stages;
         public bool GameClear = false;
-        public bool GameStart = false;
-        public int CurrentStageNumber = -1;
+        public bool IsStart = false;
 
         public Stage CurrentStage = null;
         public Player Player = null;
-        public int Step = 0;
         public bool AllStageClear = false;
+
+        private int step = 0;
+        public int Step
+        {
+            get { return step; }
+            set
+            {
+                step = value;
+                UIManager.Instance.StepText.text = string.Format("Step {0}", step);
+            }
+        }
+
+        private int currentStageNumber = 0;
+        public int CurrentStageNumber
+        {
+            get { return currentStageNumber; }
+            set
+            {
+                currentStageNumber = value;
+                UIManager.Instance.StageText.text = string.Format("Stage {0}", currentStageNumber + 1);
+            }
+        }
 
         private GameObject field = null;
 
@@ -64,11 +84,16 @@ namespace PushPush.Manager
 
         public void StartGame()
         {
-            CurrentStageNumber = PlayerPrefs.GetInt("CurrentStage", 0);
-            Stages = Resources.LoadAll<Stage>("Prefabs/Stage/").ToList();
+            if (IsStart == false)
+            {
+                CurrentStageNumber = PlayerPrefs.GetInt("CurrentStage", 0);
 
-            field = GameObject.Find("Field");
+                Stages = Resources.LoadAll<Stage>("Prefabs/Stage/").ToList();
 
+                field = GameObject.Find("Field");
+
+                IsStart = true;
+            }
             LoadStage();
         }
 
@@ -120,6 +145,20 @@ namespace PushPush.Manager
         public void EndGame()
         {
             PlayerPrefs.SetInt("CurrentStage", CurrentStageNumber);
+        }
+
+        public void UpdateStep()
+        {
+            UIManager.Instance.StepText.text = Step.ToString();
+        }
+
+        public void Exit()
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+#else
+            Application.Quit();
+#endif
         }
     }
 }
