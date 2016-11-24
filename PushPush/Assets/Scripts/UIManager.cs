@@ -26,8 +26,13 @@ public class UIManager : MonoBehaviour
     public Text StepText;
     public Text StageText;
 
-    public readonly string[] AfkText = { "빨리 생각하세요~", "아~ 함~ 졸려.. =.=" };
-    public readonly string Working = "영 차~! \n영 차~!";
+    public Animator StageAni;
+    public Text StepTextAni;
+
+    public float PlayerLastMoveTime;
+
+    public readonly string[] AfkText = { "아~ 함~ 졸려.. =.=", "빨리 생각하세요~" };
+    public readonly string Working = "영 차~!    \n   영 차~!";
 
     public void Exit()
     {
@@ -39,5 +44,37 @@ public class UIManager : MonoBehaviour
         GameManager.Instance.StartGame();
 
         StartScene.SetActive(false);
+
+        StartCoroutine(StageAniCoroutine());
+    }
+
+    public IEnumerator StageAniCoroutine()
+    {
+        while (true)
+        {
+            StageAni.Play("CharacterMovingAni");
+            StopCoroutine("StepTextChanger");
+            StepTextAni.text = Working;
+
+            while (Time.time - PlayerLastMoveTime <= 3f)
+                yield return null;
+
+            StageAni.Play("CharacterBored");
+            StartCoroutine("StepTextChanger");
+
+            while (Time.time - PlayerLastMoveTime > 3f)
+                yield return null;
+        }
+    }
+
+    public IEnumerator StepTextChanger()
+    {
+        while (true)
+        {
+            StepTextAni.text = AfkText[0];
+            yield return new WaitForSeconds(3f);
+            StepTextAni.text = AfkText[1];
+            yield return new WaitForSeconds(2f);
+        }
     }
 }

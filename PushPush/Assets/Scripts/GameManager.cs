@@ -44,6 +44,7 @@ namespace PushPush.Manager
             {
                 step = value;
                 UIManager.Instance.StepText.text = string.Format("Step {0}", step);
+                UIManager.Instance.PlayerLastMoveTime = Time.time;
             }
         }
 
@@ -101,7 +102,7 @@ namespace PushPush.Manager
         {
             if (CurrentStageNumber == -1 || field == null || Stages == null || Stages.Count == 0)
             {
-                EndGame();
+                Exit();
                 return;
             }
 
@@ -136,24 +137,23 @@ namespace PushPush.Manager
                 return;
 
             if (CurrentStageNumber == Stages.Count - 1)
-                AllStageClear = true;
+                CurrentStageNumber = 0;
+
+            PlayerPrefs.SetInt("CurrentStage", CurrentStageNumber);
 
             ++CurrentStageNumber;
             LoadStage();
         }
 
-        public void EndGame()
+        public void EndStage()
         {
             PlayerPrefs.SetInt("CurrentStage", CurrentStageNumber);
         }
 
-        public void UpdateStep()
-        {
-            UIManager.Instance.StepText.text = Step.ToString();
-        }
-
         public void Exit()
         {
+            EndStage();
+
 #if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
 #else
