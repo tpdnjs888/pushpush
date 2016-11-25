@@ -15,6 +15,13 @@ namespace PushPush
             var horizontal = (int)Input.GetAxisRaw("Horizontal");
             var vertical = (int)Input.GetAxisRaw("Vertical");
 
+            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)
+            {
+                var dragPosition = Input.GetTouch(0).deltaPosition.normalized;
+                horizontal = (int)dragPosition.x;
+                vertical = (int)dragPosition.y;
+            }
+
             if (horizontal == 0 && vertical == 0)
                 return;
 
